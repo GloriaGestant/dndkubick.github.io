@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiceCube - 3D Ролплей кубик</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Стили для 3D кубика */
+        .dice-scene {
+            perspective: 1000px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .dice-container {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 2s ease-out;
+            margin: 50px 0;
+        }
+
+        .dice {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .face {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border: 3px solid #333;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* Позиционирование граней кубика */
+        .front  { transform: rotateY(0deg) translateZ(100px); }
+        .back   { transform: rotateY(180deg) translateZ(100px); }
+        .right  { transform: rotateY(90deg) translateZ(100px); }
+        .left   { transform: rotateY(-90deg) translateZ(100px); }
+        .top    { transform: rotateX(90deg) translateZ(100px); }
+        .bottom { transform: rotateX(-90deg) translateZ(100px); }
+
+        /* Стили для точек на кубике */
+        .dot {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #333;
+        }
+
+        /* Цвета точек для каждого значения */
+        .face[data-value="1"] .dot { background: #e74c3c; }
+        .face[data-value="2"] .dot { background: #3498db; }
+        .face[data-value="3"] .dot { background: #2ecc71; }
+        .face[data-value="4"] .dot { background: #f39c12; }
+        .face[data-value="5"] .dot { background: #9b59b6; }
+        .face[data-value="6"] .dot { background: #e67e22; }
+
+        /* Расположение точек для каждого значения */
+        /* 1 точка - центр */
+        .face[data-value="1"] .dot:nth-child(1) {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* 2 точки - по диагонали */
+        .face[data-value="2"] .dot:nth-child(1) {
+            top: 25%;
+            left: 25%;
+        }
+        .face[data-value="2"] .dot:nth-child(2) {
+            bottom: 25%;
+            right: 25%;
+        }
+
+        /* 3 точки - по диагонали с центром */
+        .face[data-value="3"] .dot:nth-child(1) {
+            top: 25%;
+            left: 25%;
+        }
+        .face[data-value="3"] .dot:nth-child(2) {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .face[data-value="3"] .dot:nth-child(3) {
+            bottom: 25%;
+            right: 25%;
+        }
+
+        /* 4 точки - по углам */
+        .face[data-value="4"] .dot:nth-child(1) {
+            top: 25%;
+            left: 25%;
+        }
+        .face[data-value="4"] .dot:nth-child(2) {
+            top: 25%;
+            right: 25%;
+        }
+        .face[data-value="4"] .dot:nth-child(3) {
+            bottom: 25%;
+            left: 25%;
+        }
+        .face[data-value="4"] .dot:nth-child(4) {
+            bottom: 25%;
+            right: 25%;
+        }
+
+        /* 5 точек - по углам + центр */
+        .face[data-value="5"] .dot:nth-child(1) {
+            top: 25%;
+            left: 25%;
+        }
+        .face[data-value="5"] .dot:nth-child(2) {
+            top: 25%;
+            right: 25%;
+        }
+        .face[data-value="5"] .dot:nth-child(3) {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .face[data-value="5"] .dot:nth-child(4) {
+            bottom: 25%;
+            left: 25%;
+        }
+        .face[data-value="5"] .dot:nth-child(5) {
+            bottom: 25%;
+            right: 25%;
+        }
+
+        /* 6 точек - три столбца по две точки */
+        .face[data-value="6"] .dot:nth-child(1) {
+            top: 25%;
+            left: 25%;
+        }
+        .face[data-value="6"] .dot:nth-child(2) {
+            top: 25%;
+            right: 25%;
+        }
+        .face[data-value="6"] .dot:nth-child(3) {
+            top: 50%;
+            left: 25%;
+            transform: translateY(-50%);
+        }
+        .face[data-value="6"] .dot:nth-child(4) {
+            top: 50%;
+            right: 25%;
+            transform: translateY(-50%);
+        }
+        .face[data-value="6"] .dot:nth-child(5) {
+            bottom: 25%;
+            left: 25%;
+        }
+        .face[data-value="6"] .dot:nth-child(6) {
+            bottom: 25%;
+            right: 25%;
+        }
+
+        /* Кнопка броска */
+        .roll-btn {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .roll-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.6);
+        }
+
+        .roll-btn:active {
+            transform: translateY(0);
+        }
+
+        .roll-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Панель выбора костей */
+        .dice-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .dice-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .dice-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .dice-btn.active {
+            background: #3498db;
+            border-color: #2980b9;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+        }
+
+        /* История бросков */
+        .history-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .history-panel h3 {
+            margin-bottom: 15px;
+            color: #ecf0f1;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        #roll-history {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border-left: 3px solid #3498db;
+        }
+
+        .history-item.critical {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .history-item.fail {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        /* Настройки */
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .settings-panel h3 {
+            margin-bottom: 15px;
+            color: #ecf0f1;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        .setting-group {
+            margin: 15px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #bdc3c7;
+        }
+
+        input[type="number"], input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Результат броска */
+        .result {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 40px;
+        }
+
+        .result-value {
+            color: #f1c40f;
+            font-size: 32px;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+        }
+
+        /* Анимации */
+        @keyframes diceRoll {
+            0% { transform: rotateX(0) rotateY(0) rotateZ(0); }
+            100% { transform: rotateX(720deg) rotateY(1080deg) rotateZ(360deg); }
+        }
+
+        .rolling {
+            animation: diceRoll 2s ease-out;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .dice-container {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .face {
+                width: 150px;
+                height: 150px;
+                font-size: 36px;
+            }
+            
+            .dot {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .front  { transform: rotateY(0deg) translateZ(75px); }
+            .back   { transform: rotateY(180deg) translateZ(75px); }
+            .right  { transform: rotateY(90deg) translateZ(75px); }
+            .left   { transform: rotateY(-90deg) translateZ(75px); }
+            .top    { transform: rotateX(90deg) translateZ(75px); }
+            .bottom { transform: rotateX(-90deg) translateZ(75px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dice-scene">
+            <h1>🎲 DiceCube - 3D Ролплей Кубик</h1>
+            
+            <div class="dice-container">
+                <div class="dice" id="main-dice">
+                    <div class="face front" data-value="1">
+                        <div class="dot"></div>
+                    </div>
+                    <div class="face back" data-value="2">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="face right" data-value="3">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="face left" data-value="4">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="face top" data-value="5">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="face bottom" data-value="6">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result" id="result">
+                Нажмите "Бросить кубик" чтобы начать
+            </div>
+
+            <button class="roll-btn" id="roll-btn">🎲 Бросить кубик</button>
+
+            <div class="dice-selector">
+                <button class="dice-btn active" data-sides="4">D4</button>
+                <button class="dice-btn active" data-sides="6">D6</button>
+                <button class="dice-btn" data-sides="8">D8</button>
+                <button class="dice-btn" data-sides="10">D10</button>
+                <button class="dice-btn" data-sides="12">D12</button>
+                <button class="dice-btn" data-sides="20">D20</button>
+                <button class="dice-btn" data-sides="100">D100</button>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="history-panel">
+                <h3>📊 История бросков</h3>
+                <div id="roll-history"></div>
+            </div>
+
+            <div class="settings-panel">
+                <h3>⚙️ Настройки</h3>
+                
+                <div class="setting-group">
+                    <label for="modifier">Модификатор броска:</label>
+                    <input type="number" id="modifier" value="0" min="-10" max="100">
+                </div>
+
+                <div class="setting-group">
+                    <label for="animation-speed">Скорость анимации:</label>
+                    <input type="range" id="animation-speed" min="500" max="3000" value="1500" step="100">
+                    <span id="speed-value">1.5с</span>
+                </div>
+
+                <div class="setting-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="sound-enabled" checked>
+                        <label for="sound-enabled">Звуковые эффекты</label>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="gm-mode">
+                        <label for="gm-mode">Режим Мастера (скрытые броски)</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class DiceRoller {
+            constructor() {
+                this.currentSides = 6;
+                this.isRolling = false;
+                this.history = [];
+                this.initializeElements();
+                this.bindEvents();
+            }
+
+            initializeElements() {
+                this.dice = document.getElementById('main-dice');
+                this.rollBtn = document.getElementById('roll-btn');
+                this.result = document.getElementById('result');
+                this.historyContainer = document.getElementById('roll-history');
+                this.modifierInput = document.getElementById('modifier');
+                this.animationSpeed = document.getElementById('animation-speed');
+                this.speedValue = document.getElementById('speed-value');
+            }
+
+            bindEvents() {
+                this.rollBtn.addEventListener('click', () => this.rollDice());
+                
+                // Выбор типа кубика
+                document.querySelectorAll('.dice-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.dice-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentSides = parseInt(e.target.dataset.sides);
+                    });
+                });
+
+                // Обновление отображения скорости анимации
+                this.animationSpeed.addEventListener('input', (e) => {
+                    const seconds = (e.target.value / 1000).toFixed(1);
+                    this.speedValue.textContent = `${seconds}с`;
+                });
+
+                // Бросок пробелом
+                document.addEventListener('keypress', (e) => {
+                    if (e.code === 'Space' && !this.isRolling) {
+                        e.preventDefault();
+                        this.rollDice();
+                    }
+                });
+            }
+
+            async rollDice() {
+                if (this.isRolling) return;
+
+                this.isRolling = true;
+                this.rollBtn.disabled = true;
+
+                const modifier = parseInt(this.modifierInput.value) || 0;
+                const animationDuration = parseInt(this.animationSpeed.value);
+
+                // Анимация броска
+                this.dice.style.transition = `transform ${animationDuration}ms ease-out`;
+                this.dice.classList.add('rolling');
+
+                // Случайные вращения для анимации
+                const randomX = Math.floor(Math.random() * 360) + 720;
+                const randomY = Math.floor(Math.random() * 360) + 720;
+                const randomZ = Math.floor(Math.random() * 360) + 360;
+                
+                this.dice.style.transform = `rotateX(${randomX}deg) rotateY(${randomY}deg) rotateZ(${randomZ}deg)`;
+
+                // Ждем завершения анимации
+                await new Promise(resolve => setTimeout(resolve, animationDuration));
+
+                // Генерируем результат
+                const baseResult = Math.floor(Math.random() * this.currentSides) + 1;
+                const totalResult = baseResult + modifier;
+
+                // Показываем результат
+                this.showResult(baseResult, totalResult, modifier);
+
+                // Добавляем в историю
+                this.addToHistory(baseResult, totalResult, modifier);
+
+                this.isRolling = false;
+                this.rollBtn.disabled = false;
+            }
+
+            showResult(baseResult, totalResult, modifier) {
+                let resultHTML = `
+                    <div class="result-value">${baseResult}</div>
+                `;
+
+                if (modifier !== 0) {
+                    resultHTML += `
+                        <div style="font-size: 16px; margin-top: 5px;">
+                            ${baseResult} ${modifier > 0 ? '+' : ''}${modifier} = ${totalResult}
+                        </div>
+                    `;
+                }
+
+                // Проверяем на критические броски
+                if (baseResult === this.currentSides) {
+                    resultHTML += `<div style="color: #2ecc71; font-size: 16px; margin-top: 5px;">🎯 Критический успех!</div>`;
+                } else if (baseResult === 1) {
+                    resultHTML += `<div style="color: #e74c3c; font-size: 16px; margin-top: 5px;">💥 Критический провал!</div>`;
+                }
+
+                this.result.innerHTML = resultHTML;
+            }
+
+            addToHistory(baseResult, totalResult, modifier) {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString();
+                
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                if (baseResult === this.currentSides) {
+                    historyItem.classList.add('critical');
+                } else if (baseResult === 1) {
+                    historyItem.classList.add('fail');
+                }
+
+                let historyText = `D${this.currentSides}: ${baseResult}`;
+                if (modifier !== 0) {
+                    historyText += ` ${modifier > 0 ? '+' : ''}${modifier} = ${totalResult}`;
+                }
+                historyText += ` <small>(${timeString})</small>`;
+
+                historyItem.innerHTML = historyText;
+                this.historyContainer.insertBefore(historyItem, this.historyContainer.firstChild);
+
+                // Ограничиваем историю 50 записями
+                if (this.historyContainer.children.length > 50) {
+                    this.historyContainer.removeChild(this.historyContainer.lastChild);
+                }
+            }
+        }
+
+        // Инициализация приложения когда DOM загружен
+        document.addEventListener('DOMContentLoaded', () => {
+            new DiceRoller();
+        });
+
+        // Простые звуковые эффекты (используем Web Audio API)
+        function playDiceSound() {
+            if (!document.getElementById('sound-enabled').checked) return;
+
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.3);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        // Переопределяем метод броска чтобы добавить звук
+        const originalRollDice = DiceRoller.prototype.rollDice;
+        DiceRoller.prototype.rollDice = async function() {
+            playDiceSound();
+            return originalRollDice.call(this);
+        };
+    </script>
+</body>
+</html>
