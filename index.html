@@ -77,45 +77,124 @@
         .top    { transform: rotateX(90deg) translateZ(100px); }
         .bottom { transform: rotateX(-90deg) translateZ(100px); }
 
-        /* Точки на гранях кубика */
-        .face::before {
-            content: "";
+        /* Стили для точек на кубике */
+        .dot {
             position: absolute;
             width: 30px;
             height: 30px;
-            background: #333;
             border-radius: 50%;
+            background: #333;
         }
 
-        .face[data-value="1"]::before { background: #e74c3c; }
-        .face[data-value="2"]::before { background: #3498db; }
-        .face[data-value="3"]::before { background: #2ecc71; }
-        .face[data-value="4"]::before { background: #f39c12; }
-        .face[data-value="5"]::before { background: #9b59b6; }
-        .face[data-value="6"]::before { background: #e67e22; }
+        /* Цвета точек для каждого значения */
+        .face[data-value="1"] .dot { background: #e74c3c; }
+        .face[data-value="2"] .dot { background: #3498db; }
+        .face[data-value="3"] .dot { background: #2ecc71; }
+        .face[data-value="4"] .dot { background: #f39c12; }
+        .face[data-value="5"] .dot { background: #9b59b6; }
+        .face[data-value="6"] .dot { background: #e67e22; }
 
         /* Расположение точек для каждого значения */
-        .face[data-value="1"]::before { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .face[data-value="2"]::before { top: 25%; left: 25%; }
-        .face[data-value="2"]::after { content: ""; position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; bottom: 25%; right: 25%; }
-        .face[data-value="3"]::before { top: 25%; left: 25%; }
-        .face[data-value="3"]::after { content: ""; position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; bottom: 25%; right: 25%; }
-        .face[data-value="3"] .dot-middle { position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .face[data-value="4"]::before { top: 25%; left: 25%; }
-        .face[data-value="4"]::after { content: ""; position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; top: 25%; right: 25%; }
-        .face[data-value="4"] .dot-bottom-left { position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; bottom: 25%; left: 25%; }
-        .face[data-value="4"] .dot-bottom-right { position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; bottom: 25%; right: 25%; }
-        .face[data-value="5"]::before { top: 25%; left: 25%; }
-        .face[data-value="5"]::after { content: ""; position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; top: 25%; right: 25%; }
-        .face[data-value="5"] .dot-bottom-left { position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; bottom: 25%; left: 25%; }
-        .face[data-value="5"] .dot-bottom-right { position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; bottom: 25%; right: 25%; }
-        .face[data-value="5"] .dot-center { position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .face[data-value="6"]::before { top: 25%; left: 25%; }
-        .face[data-value="6"]::after { content: ""; position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; top: 25%; right: 25%; }
-        .face[data-value="6"] .dot-middle-left { position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; top: 50%; left: 25%; transform: translateY(-50%); }
-        .face[data-value="6"] .dot-middle-right { position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; top: 50%; right: 25%; transform: translateY(-50%); }
-        .face[data-value="6"] .dot-bottom-left { position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; bottom: 25%; left: 25%; }
-        .face[data-value="6"] .dot-bottom-right { position: absolute; width: 30px; height: 30px; background: inherit; border-radius: 50%; bottom: 25%; right: 25%; }
+        /* 1 точка - центр */
+        .face[data-value="1"] .dot:nth-child(1) {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* 2 точки - по диагонали */
+        .face[data-value="2"] .dot:nth-child(1) {
+            top: 25%;
+            left: 25%;
+        }
+        .face[data-value="2"] .dot:nth-child(2) {
+            bottom: 25%;
+            right: 25%;
+        }
+
+        /* 3 точки - по диагонали с центром */
+        .face[data-value="3"] .dot:nth-child(1) {
+            top: 25%;
+            left: 25%;
+        }
+        .face[data-value="3"] .dot:nth-child(2) {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .face[data-value="3"] .dot:nth-child(3) {
+            bottom: 25%;
+            right: 25%;
+        }
+
+        /* 4 точки - по углам */
+        .face[data-value="4"] .dot:nth-child(1) {
+            top: 25%;
+            left: 25%;
+        }
+        .face[data-value="4"] .dot:nth-child(2) {
+            top: 25%;
+            right: 25%;
+        }
+        .face[data-value="4"] .dot:nth-child(3) {
+            bottom: 25%;
+            left: 25%;
+        }
+        .face[data-value="4"] .dot:nth-child(4) {
+            bottom: 25%;
+            right: 25%;
+        }
+
+        /* 5 точек - по углам + центр */
+        .face[data-value="5"] .dot:nth-child(1) {
+            top: 25%;
+            left: 25%;
+        }
+        .face[data-value="5"] .dot:nth-child(2) {
+            top: 25%;
+            right: 25%;
+        }
+        .face[data-value="5"] .dot:nth-child(3) {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .face[data-value="5"] .dot:nth-child(4) {
+            bottom: 25%;
+            left: 25%;
+        }
+        .face[data-value="5"] .dot:nth-child(5) {
+            bottom: 25%;
+            right: 25%;
+        }
+
+        /* 6 точек - три столбца по две точки */
+        .face[data-value="6"] .dot:nth-child(1) {
+            top: 25%;
+            left: 25%;
+        }
+        .face[data-value="6"] .dot:nth-child(2) {
+            top: 25%;
+            right: 25%;
+        }
+        .face[data-value="6"] .dot:nth-child(3) {
+            top: 50%;
+            left: 25%;
+            transform: translateY(-50%);
+        }
+        .face[data-value="6"] .dot:nth-child(4) {
+            top: 50%;
+            right: 25%;
+            transform: translateY(-50%);
+        }
+        .face[data-value="6"] .dot:nth-child(5) {
+            bottom: 25%;
+            left: 25%;
+        }
+        .face[data-value="6"] .dot:nth-child(6) {
+            bottom: 25%;
+            right: 25%;
+        }
 
         /* Кнопка броска */
         .roll-btn {
@@ -301,6 +380,11 @@
                 font-size: 36px;
             }
             
+            .dot {
+                width: 20px;
+                height: 20px;
+            }
+            
             .front  { transform: rotateY(0deg) translateZ(75px); }
             .back   { transform: rotateY(180deg) translateZ(75px); }
             .right  { transform: rotateY(90deg) translateZ(75px); }
@@ -317,12 +401,39 @@
             
             <div class="dice-container">
                 <div class="dice" id="main-dice">
-                    <div class="face front" data-value="1"></div>
-                    <div class="face back" data-value="2"></div>
-                    <div class="face right" data-value="3"></div>
-                    <div class="face left" data-value="4"></div>
-                    <div class="face top" data-value="5"></div>
-                    <div class="face bottom" data-value="6"></div>
+                    <div class="face front" data-value="1">
+                        <div class="dot"></div>
+                    </div>
+                    <div class="face back" data-value="2">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="face right" data-value="3">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="face left" data-value="4">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="face top" data-value="5">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="face bottom" data-value="6">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
                 </div>
             </div>
 
@@ -388,7 +499,6 @@
                 this.history = [];
                 this.initializeElements();
                 this.bindEvents();
-                this.updateDiceFaces();
             }
 
             initializeElements() {
@@ -410,7 +520,6 @@
                         document.querySelectorAll('.dice-btn').forEach(b => b.classList.remove('active'));
                         e.target.classList.add('active');
                         this.currentSides = parseInt(e.target.dataset.sides);
-                        this.updateDiceFaces();
                     });
                 });
 
@@ -427,37 +536,6 @@
                         this.rollDice();
                     }
                 });
-            }
-
-            updateDiceFaces() {
-                // Для кубиков кроме D6 показываем текстовые значения
-                const faces = this.dice.querySelectorAll('.face');
-                if (this.currentSides !== 6) {
-                    faces.forEach((face, index) => {
-                        const value = (index % this.currentSides) + 1;
-                        face.textContent = value <= this.currentSides ? value : '';
-                        face.dataset.value = value <= this.currentSides ? value : '';
-                    });
-                } else {
-                    // Для D6 возвращаем точки
-                    faces.forEach(face => {
-                        face.textContent = '';
-                        face.innerHTML = this.getDotsForFace(parseInt(face.dataset.value));
-                    });
-                }
-            }
-
-            getDotsForFace(value) {
-                // Создаем HTML для точек на гранях D6
-                const dots = {
-                    1: '<div class="dot-center"></div>',
-                    2: '<div class="dot-top-left"></div><div class="dot-bottom-right"></div>',
-                    3: '<div class="dot-top-left"></div><div class="dot-center"></div><div class="dot-bottom-right"></div>',
-                    4: '<div class="dot-top-left"></div><div class="dot-top-right"></div><div class="dot-bottom-left"></div><div class="dot-bottom-right"></div>',
-                    5: '<div class="dot-top-left"></div><div class="dot-top-right"></div><div class="dot-center"></div><div class="dot-bottom-left"></div><div class="dot-bottom-right"></div>',
-                    6: '<div class="dot-top-left"></div><div class="dot-top-right"></div><div class="dot-middle-left"></div><div class="dot-middle-right"></div><div class="dot-bottom-left"></div><div class="dot-bottom-right"></div>'
-                };
-                return dots[value] || '';
             }
 
             async rollDice() {
